@@ -20,19 +20,35 @@ def main() -> None:
 
     fig = plt.figure(figsize=(16, 6.4), dpi=100)
     fig.text(0.05, 0.70, "route-optimizer", fontfamily=SERIF, fontsize=50, color=TEXT)
-    fig.text(0.05, 0.60, "Delivery routes under time windows and capacity,", fontsize=17,
-             color=TEXT)
-    fig.text(0.05, 0.545, "improved by 2-opt and or-opt local search.", fontsize=17,
-             color=MUTED)
+    fig.text(
+        0.05, 0.60, "Delivery routes under time windows and capacity,", fontsize=17, color=TEXT
+    )
+    fig.text(0.05, 0.545, "improved by 2-opt and or-opt local search.", fontsize=17, color=MUTED)
     fig.add_artist(plt.Line2D([0.05, 0.12], [0.47, 0.47], color=GOLD, lw=2))
     fig.add_artist(plt.Line2D([0.05, 0.08], [0.395, 0.395], color=MUTED, lw=1.4))
-    fig.text(0.09, 0.38, f"Nearest neighbour   {a:,.1f} km   {len(nn.routes)} trucks",
-             fontsize=13, color=MUTED)
+    fig.text(
+        0.09,
+        0.38,
+        f"Nearest neighbour   {a:,.1f} km   {len(nn.routes)} trucks",
+        fontsize=13,
+        color=MUTED,
+    )
     fig.add_artist(plt.Line2D([0.05, 0.08], [0.325, 0.325], color=GOLD, lw=2.2))
-    fig.text(0.09, 0.31, f"Local search          {b:,.1f} km   {len(ls.routes)} trucks",
-             fontsize=13, color=TEXT)
-    fig.text(0.05, 0.20, f"{len(inst.customers)} customers around central S\u00e3o Paulo, "
-             f"{100 * (a - b) / a:.1f}% less distance", fontsize=12, color=GOLD)
+    fig.text(
+        0.09,
+        0.31,
+        f"Local search          {b:,.1f} km   {len(ls.routes)} trucks",
+        fontsize=13,
+        color=TEXT,
+    )
+    fig.text(
+        0.05,
+        0.20,
+        f"{len(inst.customers)} customers around central S\u00e3o Paulo, "
+        f"{100 * (a - b) / a:.1f}% less distance",
+        fontsize=12,
+        color=GOLD,
+    )
 
     ax = fig.add_axes((0.52, 0.04, 0.44, 0.92))
     draw_routes(ax, inst, nn, "#4A4A4A", 0.9)
