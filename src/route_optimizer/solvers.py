@@ -52,7 +52,7 @@ def or_opt(inst: Instance, routes: list[Route], max_seg: int = 3) -> bool:
                 base = route_distance(inst, ra) - route_distance(inst, rest)
                 for b, rb in enumerate(routes):
                     target = rest if a == b else rb
-                    old_b = 0.0 if a == b else route_distance(inst, rb)
+                    old_b = route_distance(inst, target)
                     for pos in range(len(target) + 1):
                         for s in (seg, seg[::-1]):
                             cand = target[:pos] + s + target[pos:]
