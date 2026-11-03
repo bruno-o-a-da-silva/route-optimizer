@@ -1,4 +1,4 @@
-"""Command-line interface: solve one synthetic instance or run the benchmark."""
+"""Solve one random instance, or compare nearest neighbour with local search over seeds."""
 
 import argparse
 import csv
@@ -13,7 +13,7 @@ from route_optimizer.synth import synthetic_instance
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="route-optimizer", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
-    s = sub.add_parser("solve", help="solve one seeded synthetic instance")
+    s = sub.add_parser("solve", help="solve one random instance")
     s.add_argument("-n", type=int, default=60)
     s.add_argument("--seed", type=int, default=1)
     b = sub.add_parser("bench", help="baseline vs local search over several seeds")
@@ -27,7 +27,7 @@ def main(argv: list[str] | None = None) -> int:
         nn = nearest_neighbour(inst)
         ls = local_search(inst, nn)
         v = Vehicle()
-        print("Synthetic example data")
+        print(f"random instance, {args.n} customers, seed {args.seed}")
         for name, sol in (("nearest neighbour", nn), ("local search", ls)):
             fuel = sum(route_fuel_l(inst, r, v) for r in sol.routes)
             print(
@@ -39,7 +39,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     rows = run_benchmark(list(range(1, args.seeds + 1)), args.n)
-    print("seed  nn_km   ls_km  saving%  veh nn/ls  fuel nn/ls L  (synthetic example data)")
+    print("seed  nn_km   ls_km  saving%  veh nn/ls  fuel nn/ls L")
     for r in rows:
         print(
             f"{r.seed:4d} {r.nn_km:7.1f} {r.ls_km:7.1f} {r.km_saving_pct:7.1f}  "

@@ -16,7 +16,7 @@ def test_benchmark_rows() -> None:
 def test_cli_solve(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["solve", "-n", "15", "--seed", "2"]) == 0
     out = capsys.readouterr().out
-    assert "Synthetic example data" in out and "route 1: 0-" in out
+    assert "15 customers, seed 2" in out and "route 1: 0-" in out
 
 
 def test_cli_bench_csv(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
