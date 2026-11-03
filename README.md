@@ -36,7 +36,7 @@ pytest                 # fails below 100% coverage
 ruff check . && mypy
 ```
 
-Charts and `docs/benchmark.csv`: `pip install matplotlib && PYTHONPATH=src python scripts/make_charts.py`.
+Figures in `docs/img/` and `docs/benchmark.csv`: `pip install matplotlib && PYTHONPATH=src:scripts python scripts/make_charts.py` (hero: `scripts/make_hero.py`).
 
 ## Result
 
