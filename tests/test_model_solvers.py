@@ -33,7 +33,7 @@ def test_waiting_is_allowed() -> None:
     assert route_feasible(inst, [1])
 
 
-def test_two_opt_untangles() -> None:
+def test_two_opt_removes_the_zigzag_1_3_2_4() -> None:
     inst = line_instance()
     bad = [1, 3, 2, 4]
     good, improved = two_opt(inst, bad)
@@ -57,12 +57,19 @@ def test_or_opt_intra_route_and_no_move() -> None:
     assert not or_opt(inst, [[1, 2, 3, 4]])
 
 
-def test_nearest_neighbour_and_unserved() -> None:
+def test_customer_50_degrees_away_is_left_unserved() -> None:
     nodes = [Node(0, 0, due_min=600), Node(0, 0.1, demand_kg=10), Node(0, 50, demand_kg=10)]
     inst = Instance(nodes, capacity_kg=100, detour=1.0)
     sol = nearest_neighbour(inst)
     assert sol.routes == [[1]] and sol.unserved == [2]
     assert sol.feasible(inst)
+
+
+def test_single_order_heavier_than_the_truck_is_unserved() -> None:
+    # A 1.3 t order on a 1.2 t truck: nothing to split it with, so it stays out.
+    nodes = [Node(0, 0, due_min=600), Node(0, 0.1, demand_kg=10), Node(0, 0.12, demand_kg=1300)]
+    sol = nearest_neighbour(Instance(nodes, capacity_kg=1200, detour=1.0))
+    assert sol.routes == [[1]] and sol.unserved == [2]
 
 
 def test_fleet_limit() -> None:
@@ -79,7 +86,7 @@ def test_solution_feasible_checks() -> None:
     assert Solution([[1, 2, 3, 4]]).feasible(inst)
 
 
-def test_local_search_improves_synthetic_and_stays_feasible() -> None:
+def test_local_search_beats_nearest_neighbour_on_seed_3() -> None:
     inst = synthetic_instance(n=25, seed=3)
     nn = nearest_neighbour(inst)
     ls = local_search(inst, nn)
