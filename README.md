@@ -1,7 +1,11 @@
-# route-optimizer
+<p align="center">
+  <img src="docs/img/hero.png" width="100%" alt="route-optimizer: map of 60 delivery stops around a depot in central Sao Paulo, nearest neighbour routes in grey (1,130.9 km, 8 trucks) under local search routes in gold (768.1 km, 6 trucks)">
+</p>
 
-Delivery routes with capacity and time windows (VRPTW): build them with nearest
-neighbour, then improve them with 2-opt and or-opt, and estimate fuel per route
+<p align="center"><em>Instance seed 1 from the seeded generator. Customers are synthetic, not real addresses.</em></p>
+
+Builds delivery routes with capacity and time windows (VRPTW) by nearest
+neighbour, improves them with 2-opt and or-opt, and estimates fuel per route
 from the forces on the truck.
 
 ## Problem
@@ -56,8 +60,16 @@ That is 30.2% less distance on the totals (the CLI prints the per-instance mean,
 30.0%; worst seed 21.1%, best 39.4%) and 28.2% less fuel by the model. The fuel
 figures are lower bounds and only useful for comparing the two plans.
 
-![Benchmark](docs/benchmark.png)
-![Routes, seed 1](docs/routes_seed1.png)
+Local search wins on every seed; the gap is smallest on seeds 10 and 2.
+
+<p align="center"><img src="docs/img/benchmark.png" width="760" alt="Paired bars of total km per instance for seeds 1 to 10, local search below nearest neighbour on every seed, mean saving 30.0%"></p>
+<p align="center"><em>Total distance per instance, synthetic instances from seeds 1 to 10.</em></p>
+
+On seed 1 the baseline sends long spokes back across the map; after local
+search the routes form compact loops and two fewer trucks go out.
+
+<p align="center"><img src="docs/img/routes_seed1.png" width="760" alt="Two route maps of the same 60 customers: nearest neighbour 1130.9 km with 8 trucks, local search 768.1 km with 6 trucks"></p>
+<p align="center"><em>Seed 1 before and after local search, synthetic instance (seed 1).</em></p>
 
 ## Limits
 
