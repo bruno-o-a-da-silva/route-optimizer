@@ -1,8 +1,8 @@
-# Fuel model: a physics-grounded derivation
+# Fuel model
 
 `route_optimizer.fuel` estimates fuel per route from the forces a vehicle must
-overcome at constant speed on a flat road. It is a transparent lower-bound
-model, not a calibrated consumption predictor.
+overcome at constant speed on a flat road. It gives a lower bound for
+comparing routes, not a calibrated consumption figure.
 
 ## 1. Forces
 

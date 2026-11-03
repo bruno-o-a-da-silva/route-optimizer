@@ -1,46 +1,29 @@
 # route-optimizer
 
-Vehicle routing with time windows and capacity (VRPTW): a nearest-neighbour
-baseline, a 2-opt / or-opt local search, haversine distances and a
-physics-based fuel estimate.
+Delivery routes with capacity and time windows (VRPTW): build them with nearest
+neighbour, then improve them with 2-opt and or-opt, and estimate fuel per route
+from the forces on the truck.
 
-## What
+## Problem
 
-- Distance matrix from haversine great-circle distances on synthetic
-  coordinates, scaled by a road detour factor.
-- Hard time windows (waiting allowed), service times, vehicle capacity, fleet
-  limit.
-- Baseline: nearest neighbour construction.
-- Improvement: 2-opt within routes and or-opt segment moves within and between
-  routes.
-- Fuel per route from rolling resistance, aerodynamic drag and the payload on
-  board for every leg.
-- Seeded synthetic instance generator, CLI and a reproducible benchmark.
+Nearest neighbour ("go to the closest stop that still fits") gives feasible
+routes fast, but they cross themselves and use more trucks than needed. The
+question here is how much a simple local search recovers while keeping every
+window and capacity limit, measured in km and in litres.
 
-## Why
+## Method
 
-Nearest neighbour is the routing equivalent of "always go to the closest next
-stop". It is fast and feasible but leaves long crossing legs. A simple local
-search removes most of them while keeping every constraint, and it is easy to
-read and test. The fuel model ties distance and load to energy so routes can be
-compared in litres, not only kilometres.
+- Distances: haversine great-circle km × 1.3 detour factor for streets.
+- Constraints: hard time windows (arriving early means waiting), 10 min service
+  per stop, truck capacity, fleet limit, back at the depot before the shift ends.
+- Start: nearest neighbour; a new truck opens when no customer fits.
+- Improve: 2-opt inside each route, then or-opt moves of 1 to 3 stops within or
+  between routes, repeated until nothing improves.
+- Fuel per leg: F = Crr·m·g + ½·ρ·Cd·A·v², divided by engine efficiency and
+  diesel heating value. The mass m drops at each stop, so load order matters.
 
-## Physical model
-
-```mermaid
-flowchart LR
-    M["Mass m = m_curb + payload on board [kg]"] --> R["Rolling: Crr · m · g [N]"]
-    S["Speed v [m/s]"] --> D["Drag: ½ · ρ · Cd · A · v² [N]"]
-    R --> F["Tractive force F [N]"]
-    D --> F
-    F --> E["Wheel energy per km: F · 1000 m [J/km]"]
-    E --> L["Fuel per km: E / (η · LHV) [L/km]"]
-    L --> T["Route fuel: Σ legs d_k · fuel(m_k) [L]"]
-    P["Each stop drops demand q_i"] --> M
-```
-
-Derivation, units and a hand-computed check: [docs/fuel_model.md](docs/fuel_model.md).
-Optimisation model and heuristics: [docs/formulation.md](docs/formulation.md).
+Derivation and a hand check: [docs/fuel_model.md](docs/fuel_model.md).
+Model and heuristics: [docs/formulation.md](docs/formulation.md).
 
 ## How to run
 
@@ -49,43 +32,42 @@ python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
 route-optimizer solve -n 60 --seed 1
 route-optimizer bench -n 60 --seeds 10 --csv bench.csv
-pytest            # tests with 100% coverage gate
+pytest                 # fails below 100% coverage
 ruff check . && mypy
-pip install matplotlib && PYTHONPATH=src python scripts/make_charts.py   # refresh docs/
 ```
 
-## Results (synthetic example data)
+Charts and `docs/benchmark.csv`: `pip install matplotlib && PYTHONPATH=src python scripts/make_charts.py`.
 
-Ten seeded synthetic instances (seeds 1 to 10), 60 customers each, demand
-20 to 150 kg, 2 to 4 hour windows in a 10 hour shift, capacity 1,200 kg,
-40 km/h, detour factor 1.3. Per-seed numbers: [docs/benchmark.csv](docs/benchmark.csv).
+## Result
 
-| Metric, sum over 10 instances (synthetic example data) | Nearest neighbour | 2-opt + or-opt |
+Ten random instances (seeds 1 to 10) around a depot in central São Paulo, 60
+customers each, 20 to 150 kg per drop, 2 to 4 h windows in a 10 h shift,
+1,200 kg trucks at 40 km/h. Totals from `route-optimizer bench -n 60 --seeds 10`
+(per seed: [docs/benchmark.csv](docs/benchmark.csv)):
+
+| Sum over 10 instances | Nearest neighbour | 2-opt + or-opt |
 |---|---|---|
-| Total distance | 11,172.8 km | 7,801.2 km |
-| Vehicles used | 85 | 63 |
-| Fuel, steady-state model | 579.8 L | 416.1 L |
+| Distance | 11,172.8 km | 7,801.2 km |
+| Trucks | 85 | 63 |
+| Fuel (flat-road model) | 579.8 L | 416.1 L |
 | Unserved customers | 0 | 0 |
 
-Distance saving: **30.2% overall** (21.1% to 39.4% per instance); fuel
-estimate saving 28.2%. Fuel figures are lower bounds from the flat-road model
-and are only meaningful for comparing routes.
+That is 30.2% less distance on the totals (the CLI prints the per-instance mean,
+30.0%; worst seed 21.1%, best 39.4%) and 28.2% less fuel by the model. The fuel
+figures are lower bounds and only useful for comparing the two plans.
 
 ![Benchmark](docs/benchmark.png)
 ![Routes, seed 1](docs/routes_seed1.png)
 
-## Limits and honest scope
+## Limits
 
-- Heuristics only; no optimality gap is reported (no exact solver or
-  published benchmark comparison yet).
-- Synthetic instances are random, not drawn from real customers; savings on
-  real networks depend on geography, windows and how good the existing plan is.
-- Great-circle distance with a constant detour factor, constant speed, no
-  traffic or road network.
-- Fuel model excludes acceleration, idling, grades and auxiliaries; parameters
-  are generic assumptions.
-- Pure Python; fine for tens to low hundreds of customers.
+- Heuristic only. No optimality gap, and no comparison with Solomon or other
+  published instances yet.
+- Random customers, not a real network. Savings on a real plan depend on how
+  good that plan already is.
+- Constant detour factor and speed; no traffic, road graph or restrictions
+  such as rodízio.
+- The fuel model ignores acceleration, idling, grades and auxiliaries.
+- Pure Python; fine up to a few hundred customers.
 
-## License
-
-MIT, see [LICENSE](LICENSE).
+MIT license.
