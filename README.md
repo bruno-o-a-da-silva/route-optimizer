@@ -68,6 +68,6 @@ figures are lower bounds and only useful for comparing the two plans.
 - Constant detour factor and speed; no traffic, road graph or restrictions
   such as rodízio.
 - The fuel model ignores acceleration, idling, grades and auxiliaries.
-- Pure Python; fine up to a few hundred customers.
+- Pure Python; fine for tens to low hundreds of customers.
 
 MIT license.
