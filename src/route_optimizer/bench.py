@@ -1,5 +1,3 @@
-"""Baseline vs improved benchmark over seeded synthetic instances."""
-
 from dataclasses import dataclass
 
 from route_optimizer.fuel import Vehicle, route_fuel_l

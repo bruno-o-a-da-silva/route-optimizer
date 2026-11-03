@@ -1,17 +1,16 @@
-"""Seeded synthetic VRPTW instances (synthetic example data, not real customers)."""
+"""Random VRPTW instances around a depot. Not real customers."""
 
 import random
 
 from route_optimizer.model import Instance, Node
 
-DEPOT = (-23.55, -46.63)  # an arbitrary public city-centre coordinate used as origin
+DEPOT = (-23.55, -46.63)  # Praca da Se, Sao Paulo; any point would do
 
 
 def synthetic_instance(
     n: int = 60, seed: int = 1, capacity_kg: float = 1200.0, radius_deg: float = 0.25
 ) -> Instance:
-    """n customers scattered around the depot with demand 20-150 kg and 2-4 h windows
-    inside a 10 h shift (600 min)."""
+    # Demand 20-150 kg, windows 2-4 h opening within the first 7 h of a 10 h shift.
     rng = random.Random(seed)
     nodes = [Node(*DEPOT, ready_min=0.0, due_min=600.0)]
     for _ in range(n):

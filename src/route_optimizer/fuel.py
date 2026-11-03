@@ -31,7 +31,7 @@ def tractive_force_n(v: Vehicle, mass_kg: float, speed_kmh: float) -> float:
 
 
 def energy_mj_per_km(v: Vehicle, mass_kg: float, speed_kmh: float) -> float:
-    """Energy at the wheels per km, MJ/km (F [N] * 1000 [m] / 1e6)."""
+    # F [N] * 1000 m / 1e6 = MJ/km
     return tractive_force_n(v, mass_kg, speed_kmh) / 1000.0
 
 
@@ -40,7 +40,7 @@ def fuel_l_per_km(v: Vehicle, mass_kg: float, speed_kmh: float) -> float:
 
 
 def route_fuel_l(inst: Instance, route: Route, v: Vehicle) -> float:
-    """Fuel for a delivery route: the vehicle leaves full and sheds load at each stop."""
+    # Leaves the depot full and drops each demand after the leg into that stop.
     load = sum(inst.nodes[c].demand_kg for c in route)
     total, prev = 0.0, 0
     for c in [*route, 0]:

@@ -27,7 +27,6 @@ def nearest_neighbour(inst: Instance) -> Solution:
 
 
 def two_opt(inst: Instance, route: Route) -> tuple[Route, bool]:
-    """Intra-route 2-opt: reverse a segment when it shortens the route feasibly."""
     best, best_d, improved = route, route_distance(inst, route), False
     n = len(route)
     for i in range(n - 1):
@@ -40,8 +39,9 @@ def two_opt(inst: Instance, route: Route) -> tuple[Route, bool]:
 
 
 def or_opt(inst: Instance, routes: list[Route], max_seg: int = 3) -> bool:
-    """Move a segment of 1..max_seg customers to its best feasible position in any
-    route (same or another). Applies the first improving move; returns True if one."""
+    # First improvement, not best: take the first gainful move and restart. Segments are
+    # also tried reversed. For a move inside one route the gain is measured against the
+    # route with the segment already removed.
     for a, ra in enumerate(routes):
         for seg_len in range(1, max_seg + 1):
             for i in range(len(ra) - seg_len + 1):
@@ -67,7 +67,6 @@ def or_opt(inst: Instance, routes: list[Route], max_seg: int = 3) -> bool:
 
 
 def local_search(inst: Instance, start: Solution, max_iter: int = 10_000) -> Solution:
-    """Alternate 2-opt on each route and inter/intra or-opt until no move improves."""
     routes = [list(r) for r in start.routes]
     for _ in range(max_iter):
         changed = False
